@@ -9,47 +9,26 @@ function App() {
   const [selectedGame, setSelectedGame] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState("Never");
 
-  // REAL-TIME DATA FETCH WITH ERROR HANDLING
   useEffect(() => {
-    const fetchRealData = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
 
-        // Steam API for CS2 (App ID 730)
-        const cs2Res = await fetch("https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=730");
-        if (cs2Res.ok) {
-          const cs2Data = await cs2Res.json();
-          var cs2 = cs2Data.response.player_count || 1267945; // Fallback
-        } else {
-          var cs2 = 1267945; // Fallback
-        }
+        // Steam API (CS2, Dota 2, PUBG)
+        const [cs2Res, dotaRes, pubgRes] = await Promise.all([
+          fetch("https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=730"),
+          fetch("https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=570"),
+          fetch("https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=578080")
+        ]);
 
-        // Steam API for Dota 2 (App ID 570)
-        const dotaRes = await fetch("https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=570");
-        if (dotaRes.ok) {
-          const dotaData = await dotaRes.json();
-          var dota = dotaData.response.player_count || 710038; // Fallback
-        } else {
-          var dota = 710038; // Fallback
-        }
+        const cs2 = cs2Res.ok ? (await cs2Res.json()).response.player_count : 1267945;
+        const dota = dotaRes.ok ? (await dotaRes.json()).response.player_count : 710038;
+        const pubg = pubgRes.ok ? (await pubgRes.json()).response.player_count : 219289;
 
-        // Steam API for PUBG (App ID 578080)
-        const pubgRes = await fetch("https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=578080");
-        if (pubgRes.ok) {
-          const pubgData = await pubgRes.json();
-          var pubg = pubgData.response.player_count || 219289; // Fallback
-        } else {
-          var pubg = 219289; // Fallback
-        }
-
-        // Xbox Fortnite estimate (using a reliable proxy)
-        var fortnite = 520000; // Fallback
-
-        // PS Roblox estimate
-        var roblox = 15000; // Fallback
-
+        const fortnite = 520000;
+        const roblox = 15000;
         const total = cs2 + dota + pubg + fortnite + roblox;
 
         setData({
@@ -58,19 +37,15 @@ function App() {
             { name: "Dota 2", current: dota, peak: Math.floor(dota * 1.25) },
             { name: "PUBG", current: pubg, peak: Math.floor(pubg * 1.25) }
           ],
-          xbox: [
-            { name: "Fortnite", current: fortnite, peak: 0 }
-          ],
-          ps: [
-            { name: "Roblox", hours: 59000, players: roblox }
-          ],
+          xbox: [{ name: "Fortnite", current: fortnite, peak: 0 }],
+          ps: [{ name: "Roblox", hours: 59000, players: roblox }],
           total
         });
+
         setLastUpdate(new Date().toLocaleTimeString());
         setLoading(false);
       } catch (err) {
         console.error("API Error:", err);
-        // Fallback to static data
         setData({
           steam: [
             { name: "Counter-Strike 2", current: 1267945, peak: 1588091 },
@@ -81,13 +56,13 @@ function App() {
           ps: [{ name: "Roblox", hours: 59000, players: 15000 }],
           total: 20000000
         });
+        setLastUpdate("Error");
         setLoading(false);
       }
     };
 
-    fetchRealData();
-    const interval = setInterval(fetchRealData, 60 * 1000); // Every 60 seconds
-
+    fetchData();
+    const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -105,13 +80,7 @@ function App() {
   }));
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      backgroundColor: "#111827",
-      color: "white",
-      fontFamily: "system-ui, sans-serif",
-      padding: "2rem"
-    }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#111827", color: "white", fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
       <div style={{ maxWidth: "80rem", margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <h1 style={{
@@ -167,9 +136,7 @@ function App() {
                   fontWeight: 600,
                   transition: "all 0.2s",
                   transform: tab === p.id ? "scale(1.05)" : "scale(1)",
-                  background: tab === p.id
-                    ? "linear-gradient(to right, #06b6d4, #a855f7)"
-                    : "rgba(255, 255, 255, 0.1)",
+                  background: tab === p.id ? "linear-gradient(to right, #06b6d4, #a855f7)" : "rgba(255, 255, 255, 0.1)",
                   color: tab === p.id ? "white" : "#9ca3af",
                   boxShadow: tab === p.id ? "0 10px 15px -3px rgba(0, 0, 0, 0.1)" : "none",
                   width: window.innerWidth <= 768 ? "100%" : "auto"
@@ -285,11 +252,7 @@ function App() {
         </p>
       </div>
 
-      <GameDetailModal
-        game={selectedGame}
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-      />
+      <GameDetailModal game={selectedGame} isOpen={showModal} onClose={() => setShowModal(false)} />
     </div>
   );
 }

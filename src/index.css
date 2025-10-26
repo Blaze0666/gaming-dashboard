@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 html {
-  @apply dark;
+  @apply bg-black text-white;
 }

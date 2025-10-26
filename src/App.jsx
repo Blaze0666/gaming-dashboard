@@ -10,15 +10,24 @@ function App() {
   const [tab, setTab] = useState("steam");
   const [selectedGame, setSelectedGame] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // AUTO-REFRESH EVERY 5 MINUTES
   useEffect(() => {
-    fetch(API_URL)
-      .then(r => r.json())
-      .then(d => {
-        setData(d);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    const fetchData = () => {
+      fetch(API_URL)
+        .then(r => r.json())
+        .then(d => {
+          setData(d);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    };
+
+    fetchData(); // Initial load
+    const interval = setInterval(fetchData, 5 * 60 * 1000); // Every 5 min
+
+    return () => clearInterval(interval);
   }, []);
 
   const platforms = [
@@ -64,21 +73,79 @@ function App() {
       padding: "2rem"
     }}>
       <div style={{ maxWidth: "80rem", margin: "0 auto" }}>
-        <h1 style={{
-          fontSize: "3.75rem",
-          fontWeight: 900,
-          textAlign: "center",
-          marginBottom: "1rem",
-          background: "linear-gradient(to right, #06b6d4, #a855f7)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent"
-        }}>
-          Gaming Dashboard
-        </h1>
+        {/* MOBILE MENU BUTTON */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <h1 style={{
+            fontSize: "2.5rem",
+            fontWeight: 900,
+            background: "linear-gradient(to right, #06b6d4, #a855f7)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent"
+          }}>
+            Gaming Dashboard
+          </h1>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            style={{
+              display: "none",
+              "@media (max-width: 768px)": { display: "block" },
+              background: "none",
+              border: "none",
+              color: "white",
+              fontSize: "1.5rem",
+              cursor: "pointer"
+            }}
+          >
+            {mobileMenuOpen ? "✕" : "☰"}
+          </button>
+        </div>
+
         <p style={{ textAlign: "center", color: "#9ca3af", marginBottom: "2rem" }}>
           Live Player Counts Across Platforms
         </p>
 
+        {/* MOBILE MENU */}
+        {(mobileMenuOpen || window.innerWidth > 768) && (
+          <div style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.75rem",
+            justifyContent: "center",
+            marginBottom: "2rem",
+            flexDirection: window.innerWidth <= 768 ? "column" : "row"
+          }}>
+            {platforms.map(p => (
+              <button
+                key={p.id}
+                onClick={() => {
+                  setTab(p.id);
+                  setMobileMenuOpen(false);
+                }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.75rem 1.25rem",
+                  borderRadius: "9999px",
+                  fontWeight: 600,
+                  transition: "all 0.2s",
+                  transform: tab === p.id ? "scale(1.05)" : "scale(1)",
+                  background: tab === p.id
+                    ? "linear-gradient(to right, #06b6d4, #a855f7)"
+                    : "rgba(255, 255, 255, 0.1)",
+                  color: tab === p.id ? "white" : "#9ca3af",
+                  boxShadow: tab === p.id ? "0 10px 15px -3px rgba(0, 0, 0, 0.1)" : "none",
+                  width: window.innerWidth <= 768 ? "100%" : "auto"
+                }}
+              >
+                <img src={p.logo} alt={p.name} style={{ width: "1.5rem", height: "1.5rem" }} />
+                {p.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Rest of your dashboard */}
         <div style={{
           background: "rgba(255, 255, 255, 0.1)",
           backdropFilter: "blur(12px)",
@@ -98,33 +165,6 @@ function App() {
           </p>
         </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", justifyContent: "center", marginBottom: "2rem" }}>
-          {platforms.map(p => (
-            <button
-              key={p.id}
-              onClick={() => setTab(p.id)}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "0.75rem 1.25rem",
-                borderRadius: "9999px",
-                fontWeight: 600,
-                transition: "all 0.2s",
-                transform: tab === p.id ? "scale(1.05)" : "scale(1)",
-                background: tab === p.id
-                  ? "linear-gradient(to right, #06b6d4, #a855f7)"
-                  : "rgba(255, 255, 255, 0.1)",
-                color: tab === p.id ? "white" : "#9ca3af",
-                boxShadow: tab === p.id ? "0 10px 15px -3px rgba(0, 0, 0, 0.1)" : "none"
-              }}
-            >
-              <img src={p.logo} alt={p.name} style={{ width: "1.5rem", height: "1.5rem" }} />
-              {p.name}
-            </button>
-          ))}
-        </div>
-
         <div style={{ marginBottom: "2rem" }}>
           <h3 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "1rem" }}>
             Player Trends (Last 5 Hours)
@@ -132,7 +172,7 @@ function App() {
           <div style={{ height: "300px" }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3"RHS stroke="#374151" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="time" stroke="#9ca3af" />
                 <YAxis stroke="#9ca3af" />
                 <Tooltip />
@@ -205,7 +245,7 @@ function App() {
           fontSize: "0.75rem",
           marginTop: "2rem"
         }}>
-          Data updates every 10 minutes • Steam (Official) • Xbox (Gamstat) • PS (Proxy)
+          Data updates every 5 minutes • Steam (Official) • Xbox (Gamstat) • PS (Proxy)
         </p>
       </div>
 

@@ -1,0 +1,16 @@
+{
+  "steam": [
+    {"name": "Counter-Strike 2", "current": 1267945, "peak": 1588091},
+    {"name": "Dota 2", "current": 710038, "peak": 889520},
+    {"name": "PUBG", "current": 219289, "peak": 750442}
+  ],
+  "xbox": [
+    {"name": "YouTube", "current": 820000, "peak": 0},
+    {"name": "Fortnite", "current": 520000, "peak": 0}
+  ],
+  "ps": [
+    {"name": "Roblox", "hours": 59000, "players": 15000},
+    {"name": "Fortnite", "hours": 55000, "players": 14000}
+  ],
+  "total": 20000000
+}

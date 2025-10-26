@@ -26,66 +26,114 @@ function App() {
   const current = platforms.find(p => p.id === tab);
 
   return (
-      <div className="min-h-screen bg-black text-white p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-5xl md:text-6xl font-black text-center mb-4 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: '#111827',
+      color: 'white',
+      fontFamily: 'system-ui, sans-serif',
+      padding: '2rem'
+    }}>
+      <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+        <h1 style={{
+          fontSize: '3.75rem',
+          fontWeight: '900',
+          textAlign: 'center',
+          marginBottom: '1rem',
+          background: 'linear-gradient(to right, #06b6d4, #a855f7)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}>
           Gaming Dashboard
         </h1>
-        <p className="text-center text-gray-300 mb-8">Live Player Counts Across Platforms</p>
+        <p style={{ textAlign: 'center', color: '#9ca3af', marginBottom: '2rem' }}>
+          Live Player Counts Across Platforms
+        </p>
 
-        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 md:p-8 text-center mb-10 border border-white/20 shadow-2xl">
-          <p className="text-lg text-gray-300">Est. Combined Concurrent</p>
-          <p className="text-5xl md:text-6xl font-bold text-cyan-400">
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(12px)',
+          borderRadius: '1.5rem',
+          padding: '1.5rem',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          textAlign: 'center',
+          marginBottom: '2.5rem'
+        }}>
+          <p style={{ color: '#9ca3af' }}>Est. Combined Concurrent</p>
+          <p style={{ fontSize: '3.75rem', fontWeight: '700', color: '#06b6d4' }}>
             {loading ? "..." : data.total.toLocaleString()}
           </p>
-          <p className="text-sm text-gray-400 mt-2">Steam + Xbox Only</p>
+          <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+            Steam + Xbox Only
+          </p>
         </div>
 
-        <div className="flex flex-wrap gap-3 justify-center mb-8">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', marginBottom: '2rem' }}>
           {platforms.map(p => (
             <button
               key={p.id}
               onClick={() => setTab(p.id)}
-              className={`flex items-center gap-2 px-5 py-3 rounded-full font-semibold transition-all transform hover:scale-105 ${
-                tab === p.id
-                  ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-xl"
-                  : "bg-white/10 text-gray-300 hover:bg-white/20"
-              }`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.75rem 1.25rem',
+                borderRadius: '9999px',
+                fontWeight: '600',
+                transition: 'all 0.2s',
+                transform: tab === p.id ? 'scale(1.05)' : 'scale(1)',
+                background: tab === p.id
+                  ? 'linear-gradient(to right, #06b6d4, #a855f7)'
+                  : 'rgba(255, 255, 255, 0.1)',
+                color: tab === p.id ? 'white' : '#9ca3af',
+                boxShadow: tab === p.id ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none'
+              }}
             >
-              <img src={p.logo} alt={p.name} className="w-6 h-6" />
+              <img src={p.logo} alt={p.name} style={{ width: '1.5rem', height: '1.5rem' }} />
               {p.name}
             </button>
           ))}
         </div>
 
-        <div className="bg-white/10 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
-          <div className="p-6 border-b border-white/10">
-            <h2 className="text-xl font-bold">{current.name} — Top 25 by {current.metric}</h2>
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(12px)',
+          borderRadius: '1.5rem',
+          overflow: 'hidden',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+        }}>
+          <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '700' }}>
+              {current.name} — Top 25 by {current.metric}
+            </h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%' }}>
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left p-4 font-semibold">#</th>
-                  <th className="text-left p-4 font-semibold">Name</th>
-                  <th className="text-right p-4 font-semibold">Current</th>
-                  <th className="text-right p-4 font-semibold">Peak / Players</th>
+                <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600' }}>#</th>
+                  <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600' }}>Name</th>
+                  <th style={{ textAlign: 'right', padding: '1rem', fontWeight: '600' }}>Current</th>
+                  <th style={{ textAlign: 'right', padding: '1rem', fontWeight: '600' }}>Peak / Players</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={4} className="text-center p-8 text-gray-400">Loading live data...</td>
+                    <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#9ca3af' }}>
+                      Loading live data...
+                    </td>
                   </tr>
                 ) : (
                   current.games.slice(0, 25).map((g, i) => (
-                    <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition">
-                      <td className="p-4 font-bold text-cyan-400">#{i + 1}</td>
-                      <td className="p-4 font-medium">{g.name}</td>
-                      <td className="p-4 text-right font-mono text-green-400">
+                    <tr key={i} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1rem', fontWeight: '700', color: '#06b6d4' }}>#{i + 1}</td>
+                      <td style={{ padding: '1rem' }}>{g.name}</td>
+                      <td style={{ padding: '1rem', textAlign: 'right', color: '#10b981' }}>
                         {g.current?.toLocaleString() ?? g.hours?.toLocaleString() ?? "—"}
                       </td>
-                      <td className="p-4 text-right font-mono text-gray-400">
+                      <td style={{ padding: '1rem', textAlign: 'right', color: '#9ca3af' }}>
                         {g.peak?.toLocaleString() ?? g.players?.toLocaleString() ?? "—"}
                       </td>
                     </tr>
@@ -96,7 +144,12 @@ function App() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-8">
+        <p style={{
+          textAlign: 'center',
+          color: '#6b7280',
+          fontSize: '0.75rem',
+          marginTop: '2rem'
+        }}>
           Data updates every 10 minutes • Steam (Official) • Xbox (Gamstat) • PS (Proxy)
         </p>
       </div>

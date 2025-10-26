@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import GameDetailModal from "./GameDetailModal";
 
 const API_URL = "/api/data.json";
 
@@ -6,6 +8,8 @@ function App() {
   const [data, setData] = useState({ steam: [], xbox: [], ps: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("steam");
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetch(API_URL)
@@ -24,6 +28,15 @@ function App() {
   ];
 
   const current = platforms.find(p => p.id === tab);
+
+  // Sample chart data (replace with real data)
+  const chartData = [
+    { time: '1h ago', players: 1200000 },
+    { time: '2h ago', players: 1150000 },
+    { time: '3h ago', players: 1300000 },
+    { time: '4h ago', players: 1250000 },
+    { time: '5h ago', players: 1100000 },
+  ];
 
   return (
     <div style={{
@@ -95,6 +108,23 @@ function App() {
           ))}
         </div>
 
+        <div style={{ marginBottom: '2rem' }}>
+          <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
+            Player Trends (Last 5 Hours)
+          </h3>
+          <div style={{ height: '300px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="time" stroke="#9ca3af" />
+                <YAxis stroke="#9ca3af" />
+                <Tooltip />
+                <Line type="monotone" dataKey="players" stroke="#06b6d4" strokeWidth={3} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
         <div style={{
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(12px)',
@@ -129,7 +159,12 @@ function App() {
                   current.games.slice(0, 25).map((g, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                       <td style={{ padding: '1rem', fontWeight: '700', color: '#06b6d4' }}>#{i + 1}</td>
-                      <td style={{ padding: '1rem' }}>{g.name}</td>
+                      <td style={{ padding: '1rem', cursor: 'pointer' }} onClick={() => {
+                        setSelectedGame(g);
+                        setShowModal(true);
+                      }}>
+                        {g.name}
+                      </td>
                       <td style={{ padding: '1rem', textAlign: 'right', color: '#10b981' }}>
                         {g.current?.toLocaleString() ?? g.hours?.toLocaleString() ?? "—"}
                       </td>
@@ -153,6 +188,12 @@ function App() {
           Data updates every 10 minutes • Steam (Official) • Xbox (Gamstat) • PS (Proxy)
         </p>
       </div>
+
+      <GameDetailModal
+        game={selectedGame}
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      />
     </div>
   );
 }
